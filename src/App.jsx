@@ -5,7 +5,10 @@ import Register from "./pages/auth/Register";
 import ResidentDashboard from "./pages/Resident/ResidentDashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import SubmitReport from "./pages/Resident/SubmitReport";
-import MyReports from "./pages/resident/MyReports";
+import MyReports from "./pages/Resident/MyReports";
+import History from "./pages/Resident/History";
+import Settings from "./pages/Resident/Settings";
+import Profile from "./pages/Resident/Profile";
 import Notifications from "./pages/Resident/Notifications";
 
 function App() {
@@ -18,6 +21,9 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/submit-report" element={<SubmitReport />} />
         <Route path="/my-reports" element={<MyReports />} />
+        <Route path="/history" element={<History />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/notifications" element={<Notifications />} />
       </Routes>
     </BrowserRouter>

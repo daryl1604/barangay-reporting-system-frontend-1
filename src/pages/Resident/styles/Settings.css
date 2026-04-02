@@ -1,0 +1,175 @@
+/* =============================================
+   SETTINGS SCREEN
+   ============================================= */
+
+   .settings__header {
+    margin-bottom: 24px;
+  }
+  
+  .settings__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 4px;
+  }
+  
+  .settings__title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1a2540;
+    margin-bottom: 4px;
+  }
+  
+  .settings__sub {
+    font-size: 14px;
+    color: #64748b;
+  }
+  
+  /* Two-column layout */
+  .settings__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  
+  /* Shared card */
+  .settings__card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 24px;
+  }
+  
+  .settings__card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a2540;
+    margin-bottom: 4px;
+  }
+  
+  .settings__card-sub {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 20px;
+  }
+  
+  /* ── Toggle rows (Notification Preferences) ── */
+  .settings__toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .settings__toggle-row:last-child { border-bottom: none; }
+  
+  .settings__toggle-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a2540;
+    margin-bottom: 3px;
+  }
+  
+  .settings__toggle-desc {
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.4;
+  }
+  
+  /* Toggle switch */
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .toggle-switch__slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #cbd5e1;
+    border-radius: 24px;
+    transition: background 0.2s;
+  }
+  .toggle-switch__slider::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  }
+  .toggle-switch input:checked + .toggle-switch__slider {
+    background: #3b72e8;
+  }
+  .toggle-switch input:checked + .toggle-switch__slider::before {
+    transform: translateX(20px);
+  }
+  
+  /* ── Privacy items (Privacy & Security) ── */
+  .settings__privacy-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .settings__privacy-item:last-child { border-bottom: none; }
+  
+  .settings__privacy-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a2540;
+    margin-bottom: 3px;
+  }
+  
+  .settings__privacy-desc {
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.4;
+    max-width: 260px;
+  }
+  
+  .settings__privacy-btn {
+    background: #f1f5f9;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+  .settings__privacy-btn:hover {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+  
+  /* Inline password form (rendered inside the privacy item) */
+  .settings__pw-form {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .settings__pw-actions {
+    display: flex;
+    gap: 8px;
+  }

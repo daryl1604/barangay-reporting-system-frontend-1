@@ -1,0 +1,142 @@
+/* =============================================
+   HISTORY SCREEN
+   ============================================= */
+
+   .history__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  
+  .history__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 4px;
+  }
+  
+  .history__title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1a2540;
+    margin-bottom: 4px;
+  }
+  
+  .history__sub {
+    font-size: 14px;
+    color: #64748b;
+  }
+  
+  .history__new-btn {
+    background: #3b72e8;
+    border: none;
+    border-radius: 12px;
+    padding: 11px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.18s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .history__new-btn:hover { background: #2563eb; }
+  
+  /* Timeline card */
+  .history__timeline {
+    background: #fff;
+    border-radius: 18px;
+    padding: 22px;
+  }
+  
+  .history__timeline-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a2540;
+    margin-bottom: 4px;
+  }
+  
+  .history__timeline-sub {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 20px;
+  }
+  
+  /* Individual history items */
+  .history__item {
+    border: 1px solid #e8edf5;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+  .history__item:last-child { margin-bottom: 0; }
+  
+  .history__item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  
+  .history__item-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a2540;
+  }
+  
+  .history__item-status {
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 4px 12px;
+  }
+  
+  .history__item-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  
+  .history__item-tag {
+    font-size: 12px;
+    background: #f1f5f9;
+    border-radius: 20px;
+    padding: 4px 12px;
+    color: #475569;
+    font-weight: 500;
+  }
+  
+  .history__item-note {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  
+  .history__item-view-btn {
+    background: #f1f5f9;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .history__item-view-btn:hover {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+  
+  /* Empty state */
+  .history__empty {
+    text-align: center;
+    padding: 48px 0;
+    color: #94a3b8;
+    font-size: 15px;
+  }

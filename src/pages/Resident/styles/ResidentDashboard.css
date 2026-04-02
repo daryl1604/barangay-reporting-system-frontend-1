@@ -1,0 +1,295 @@
+/* =============================================
+   RESIDENT DASHBOARD
+   ============================================= */
+
+   .res-dashboard {
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 20px;
+  }
+  
+  /* Hero banner */
+  .res-dashboard__hero {
+    background: linear-gradient(135deg, #4f8ef7 0%, #3b72e8 60%, #2563eb 100%);
+    border-radius: 20px;
+    padding: 30px 32px;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  .res-dashboard__hero-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-bottom: 8px;
+  }
+  .res-dashboard__hero-title {
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+  .res-dashboard__hero-sub {
+    font-size: 14px;
+    opacity: 0.85;
+    line-height: 1.5;
+    margin-bottom: 24px;
+  }
+  
+  /* Metric cards */
+  .res-dashboard__metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .res-metric-card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 14px;
+    padding: 16px 20px;
+    backdrop-filter: blur(6px);
+  }
+  .res-metric-card__label {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 6px;
+  }
+  .res-metric-card__value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a2540;
+  }
+  
+  /* Reports preview */
+  .res-dashboard__reports {
+    background: #fff;
+    border-radius: 18px;
+    padding: 22px;
+  }
+  .res-dashboard__reports-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .res-dashboard__reports-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a2540;
+  }
+  .res-dashboard__reports-sub {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 16px;
+  }
+  .res-dashboard__view-btn {
+    background: #f4f7fe;
+    border: none;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    color: #3b72e8;
+    transition: background 0.15s;
+  }
+  .res-dashboard__view-btn:hover { background: #dbeafe; }
+  
+  .res-dashboard__reports-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  
+  /* Right column */
+  .res-dashboard__right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  /* Calendar widget */
+  .res-calendar {
+    background: #fff;
+    border-radius: 18px;
+    padding: 20px;
+  }
+  .res-calendar__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 4px;
+  }
+  .res-calendar__month {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a2540;
+    margin-bottom: 16px;
+  }
+  .res-calendar__grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    text-align: center;
+  }
+  .res-calendar__day-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+    padding: 4px 0;
+  }
+  .res-calendar__day {
+    font-size: 12px;
+    color: #475569;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    margin: 0 auto;
+    transition: background 0.15s;
+  }
+  .res-calendar__day:hover { background: #f4f7fe; }
+  .res-calendar__day--today {
+    background: #3b72e8;
+    color: #fff;
+    font-weight: 700;
+  }
+  .res-calendar__day--selected {
+    background: #dbeafe;
+    color: #2563eb;
+    font-weight: 700;
+  }
+  .res-calendar__day--empty { visibility: hidden; }
+  
+  /* Recent updates */
+  .res-updates {
+    background: #fff;
+    border-radius: 18px;
+    padding: 20px;
+    flex: 1;
+  }
+  .res-updates__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .res-updates__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a2540;
+  }
+  .res-updates__sub {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 14px;
+  }
+  .res-updates__view-btn {
+    background: none;
+    border: none;
+    color: #3b72e8;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  .res-update-item {
+    border-bottom: 1px solid #f1f5f9;
+    padding: 12px 0;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .res-update-item:last-child { border-bottom: none; }
+  .res-update-item:hover { background: #fafbfe; }
+  
+  .res-update-item__category {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-bottom: 2px;
+  }
+  .res-update-item__action {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a2540;
+    margin-bottom: 6px;
+  }
+  .res-update-item__tags {
+    display: flex;
+    gap: 6px;
+  }
+  .res-update-item__tag {
+    font-size: 11px;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-weight: 500;
+  }
+  .res-update-item__chevron {
+    float: right;
+    color: #94a3b8;
+    margin-top: -20px;
+  }
+  
+  /* ─── ReportPreviewCard (dashboard grid) ─── */
+  .res-preview-card {
+    border: 1px solid #e8edf5;
+    border-radius: 14px;
+    padding: 16px;
+    cursor: pointer;
+    background: #fff;
+    transition: box-shadow 0.18s, transform 0.18s;
+  }
+  .res-preview-card:hover {
+    box-shadow: 0 4px 18px rgba(59,114,232,0.1);
+    transform: translateY(-2px);
+  }
+  .res-preview-card__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a2540;
+    margin-bottom: 4px;
+  }
+  .res-preview-card__meta {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+  .res-preview-card__desc {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .res-preview-card__footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .res-preview-card__badge {
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 3px 10px;
+  }
+  .res-preview-card__tag {
+    font-size: 11px;
+    color: #64748b;
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 3px 10px;
+  }
+  .res-preview-card__arrow {
+    margin-left: auto;
+    color: #94a3b8;
+    font-size: 18px;
+  }
