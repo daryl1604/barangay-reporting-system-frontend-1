@@ -975,7 +975,7 @@ function AdminDashboard() {
     const normalizedUrl =
       /^https?:\/\//i.test(item.url) || /^data:/i.test(item.url)
         ? item.url
-        : `${API.defaults.baseURL?.replace(/\/api$/, "") || "http://localhost:5000"}${item.url}`;
+        : `${API.defaults.baseURL?.replace(/\/api$/, "") || window.location.origin}${item.url}`;
 
     return {
       name,
