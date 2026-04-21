@@ -7,6 +7,7 @@ import {
   deleteReport,
   deleteReportComment,
   fetchAllReports,
+  fetchReportDetails,
   updateReportComment,
   updateReportStatus,
 } from "../../api/reports";
@@ -131,6 +132,7 @@ function AdminDashboard() {
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const reportActionsRef = useRef(null);
   const attachmentInputRef = useRef(null);
+  const selectedReportRequestRef = useRef(0);
 
   const reportsCacheKey = "admin-dashboard-reports";
   const storedUser = useMemo(() => {
@@ -279,13 +281,53 @@ function AdminDashboard() {
   }, [isManageResidentsOpen]);
 
   useEffect(() => {
-    if (!selectedReport) {
-      return;
-    }
+    setSelectedReport((currentReport) => {
+      if (!currentReport) {
+        return currentReport;
+      }
 
-    const refreshedSelectedReport = reports.find((report) => report._id === selectedReport._id);
-    setSelectedReport(refreshedSelectedReport || null);
-  }, [reports, selectedReport]);
+      const refreshedSelectedReport = reports.find((report) => report._id === currentReport._id);
+
+      if (!refreshedSelectedReport) {
+        return null;
+      }
+
+      const nextComments = Array.isArray(refreshedSelectedReport.comments)
+        ? refreshedSelectedReport.comments
+        : Array.isArray(currentReport.comments)
+          ? currentReport.comments
+          : [];
+
+      const nextReport = {
+        ...currentReport,
+        ...refreshedSelectedReport,
+        comments: nextComments,
+      };
+
+      const currentResidentId =
+        typeof currentReport.resident === "string" ? currentReport.resident : currentReport.resident?._id || null;
+      const nextResidentId =
+        typeof nextReport.resident === "string" ? nextReport.resident : nextReport.resident?._id || null;
+      const currentCommentCount = Array.isArray(currentReport.comments) ? currentReport.comments.length : 0;
+      const nextCommentCount = Array.isArray(nextReport.comments) ? nextReport.comments.length : 0;
+
+      if (
+        currentReport.category === nextReport.category &&
+        currentReport.description === nextReport.description &&
+        currentReport.location === nextReport.location &&
+        currentReport.purok === nextReport.purok &&
+        currentReport.status === nextReport.status &&
+        currentReport.createdAt === nextReport.createdAt &&
+        currentReport.updatedAt === nextReport.updatedAt &&
+        currentResidentId === nextResidentId &&
+        currentCommentCount === nextCommentCount
+      ) {
+        return currentReport;
+      }
+
+      return nextReport;
+    });
+  }, [reports]);
 
   useEffect(() => {
     setCommentText("");
@@ -835,6 +877,16 @@ function AdminDashboard() {
     localStorage.setItem(reportsCacheKey, JSON.stringify(nextReports));
   };
 
+  const mergeReportDetails = (baseReport, detailedReport) => ({
+    ...(baseReport || {}),
+    ...(detailedReport || {}),
+    comments: Array.isArray(detailedReport?.comments)
+      ? detailedReport.comments
+      : Array.isArray(baseReport?.comments)
+        ? baseReport.comments
+        : [],
+  });
+
   const getUpdatedComments = (responseData, fallbackComments = []) => {
     if (Array.isArray(responseData)) {
       return responseData;
@@ -870,6 +922,33 @@ function AdminDashboard() {
       localStorage.setItem(reportsCacheKey, JSON.stringify(nextReports));
       return nextReports;
     });
+  };
+
+  const handleViewReport = async (report) => {
+    if (!report?._id) {
+      return;
+    }
+
+    const requestId = selectedReportRequestRef.current + 1;
+    selectedReportRequestRef.current = requestId;
+    setSelectedReport(report);
+
+    try {
+      const detailedReport = await fetchReportDetails(report._id);
+
+      if (selectedReportRequestRef.current !== requestId) {
+        return;
+      }
+
+      setSelectedReport((currentReport) => mergeReportDetails(currentReport && currentReport._id === report._id ? currentReport : report, detailedReport));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleCloseSelectedReport = () => {
+    selectedReportRequestRef.current += 1;
+    setSelectedReport(null);
   };
 
   const handleStatusChange = async (reportId, status) => {
@@ -1260,7 +1339,7 @@ function AdminDashboard() {
     const targetReport = findReportForNotification(notification);
 
     if (targetReport) {
-      setSelectedReport(targetReport);
+      await handleViewReport(targetReport);
     }
 
     if (notification.read) {
@@ -1326,7 +1405,7 @@ function AdminDashboard() {
     );
 
     if (wasSelectedReport) {
-      setSelectedReport(null);
+      handleCloseSelectedReport();
     }
 
     try {
@@ -1400,7 +1479,7 @@ function AdminDashboard() {
                     <ReportCardAdmin
                       key={report._id}
                       report={report}
-                      onView={setSelectedReport}
+                      onView={handleViewReport}
                       onStatusChange={handleStatusChange}
                       onDelete={handleRequestDeleteReport}
                       statusUpdating={statusUpdating[report._id]}
@@ -1484,7 +1563,7 @@ function AdminDashboard() {
                     <ReportCardAdmin
                       key={report._id}
                       report={report}
-                      onView={setSelectedReport}
+                      onView={handleViewReport}
                       onStatusChange={handleStatusChange}
                       onDelete={handleRequestDeleteReport}
                       statusUpdating={statusUpdating[report._id]}
@@ -1512,7 +1591,7 @@ function AdminDashboard() {
           onSelectMonth={handleMonthSelect}
           onSelectYear={handleYearSelect}
           onClearDate={() => setSelectedDate(null)}
-          onViewReport={setSelectedReport}
+          onViewReport={handleViewReport}
           onDeleteReport={handleRequestDeleteReport}
           deletingReportId={isDeletingReport ? reportPendingDelete?._id : null}
         />
@@ -2191,7 +2270,7 @@ function AdminDashboard() {
 
       {selectedReport ? (
         <div className="report-modal" role="dialog" aria-modal="true">
-          <div className="report-modal__backdrop" onClick={() => setSelectedReport(null)} />
+          <div className="report-modal__backdrop" onClick={handleCloseSelectedReport} />
           <section className="report-modal__card report-modal__card--details">
             <div className="report-modal__header">
               <div className="report-modal__hero">
@@ -2202,7 +2281,7 @@ function AdminDashboard() {
                 </span>
               </div>
               <div className="report-modal__header-actions" ref={reportActionsRef}>
-                <button type="button" className="report-modal__close" onClick={() => setSelectedReport(null)}>
+                <button type="button" className="report-modal__close" onClick={handleCloseSelectedReport}>
                   Close
                 </button>
                 <button

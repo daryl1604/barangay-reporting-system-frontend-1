@@ -5,6 +5,11 @@ export async function fetchAllReports() {
   return response.data;
 }
 
+export async function fetchReportDetails(reportId) {
+  const response = await API.get(`/reports/${reportId}`);
+  return response.data;
+}
+
 export async function fetchAnalyticsPeriodSummary(period) {
   const response = await API.get("/reports/analytics/period-summary", {
     params: { period }

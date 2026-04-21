@@ -883,14 +883,203 @@
   box-shadow: 0 0 0 4px rgba(47, 143, 235, 0.1);
 }
 
+.analytics-announcement__preview-header,
+.analytics-announcement__meta,
+.analytics-print-sheet__header,
+.analytics-print-sheet__summary,
+.analytics-print-sheet__highlights,
+.analytics-print-sheet__row {
+  display: flex;
+  align-items: center;
+}
+
+.analytics-announcement__preview-header,
+.analytics-announcement__meta,
+.analytics-print-sheet__header,
+.analytics-print-sheet__row {
+  justify-content: space-between;
+}
+
+.analytics-announcement__preview-header {
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(78, 144, 245, 0.14), rgba(52, 192, 174, 0.09));
+}
+
+.analytics-announcement__preview-header strong,
+.analytics-print-sheet__header h3,
+.analytics-validation strong {
+  display: block;
+  color: #203251;
+}
+
+.analytics-announcement__preview-header span,
+.analytics-announcement__meta span,
+.analytics-print-sheet__eyebrow,
+.analytics-print-sheet__header span,
+.analytics-print-sheet__stamp span,
+.analytics-print-sheet__stat span,
+.analytics-print-sheet__highlights span {
+  color: #667a98;
+}
+
+.analytics-announcement__badge {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #255db3;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.analytics-announcement__meta {
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+}
+
 .analytics-announcement__actions {
   gap: 12px;
   flex-wrap: wrap;
 }
 
+.analytics-validation {
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(231, 170, 42, 0.35);
+  background: rgba(255, 248, 231, 0.95);
+}
+
+.analytics-validation ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: #6a5732;
+}
+
+.analytics-validation li + li {
+  margin-top: 6px;
+}
+
 .analytics-announcement__message {
   margin: 0;
   font-weight: 600;
+}
+
+.analytics-print-sheet {
+  padding: 28px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(87, 157, 255, 0.18), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+  border: 1px solid rgba(170, 199, 240, 0.7);
+}
+
+.analytics-print-sheet__header {
+  gap: 18px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #d9e5f6;
+}
+
+.analytics-print-sheet__eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.analytics-print-sheet__header h3 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.analytics-print-sheet__stamp {
+  min-width: 180px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  text-align: right;
+  box-shadow: 0 12px 24px rgba(69, 103, 155, 0.08);
+}
+
+.analytics-print-sheet__stamp strong,
+.analytics-print-sheet__stat strong,
+.analytics-print-sheet__highlights strong,
+.analytics-print-sheet__row strong {
+  color: #1e3352;
+}
+
+.analytics-print-sheet__summary {
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 22px 0;
+}
+
+.analytics-print-sheet__stat {
+  min-width: 140px;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(83, 110, 151, 0.08);
+}
+
+.analytics-print-sheet__body {
+  display: grid;
+  gap: 18px;
+}
+
+.analytics-print-sheet__section {
+  padding: 24px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 10px 22px rgba(81, 108, 148, 0.08);
+}
+
+.analytics-print-sheet__section h4,
+.analytics-print-sheet__section p {
+  margin: 0;
+}
+
+.analytics-print-sheet__section h4 {
+  margin-bottom: 14px;
+  color: #203251;
+}
+
+.analytics-print-sheet__section p {
+  color: #30435f;
+  font-size: 0.98rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.analytics-print-sheet__highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.analytics-print-sheet__highlights > div {
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: #f6f9fe;
+}
+
+.analytics-print-sheet__table {
+  display: grid;
+  gap: 10px;
+}
+
+.analytics-print-sheet__row {
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #f8fbff;
 }
 
 .analytics-saved-list {
@@ -3754,5 +3943,9 @@
   .sidebar-report-card .report-status {
     grid-column: 2;
     justify-self: flex-start;
+  }
+  .analytics-print-sheet__summary,
+  .analytics-print-sheet__highlights {
+    grid-template-columns: 1fr;
   }
 }
