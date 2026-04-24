@@ -10,6 +10,7 @@ import History from "./pages/Resident/History";
 import Settings from "./pages/Resident/Settings";
 import Profile from "./pages/Resident/Profile";
 import Notifications from "./pages/Resident/Notifications";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -17,14 +18,70 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/resident" element={<ResidentDashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/submit-report" element={<SubmitReport />} />
-        <Route path="/my-reports" element={<MyReports />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/notifications" element={<Notifications />} />
+        <Route
+          path="/resident"
+          element={
+            <ProtectedRoute allowedRoles={["resident"]}>
+              <ResidentDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/submit-report"
+          element={
+            <ProtectedRoute allowedRoles={["resident"]}>
+              <SubmitReport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-reports"
+          element={
+            <ProtectedRoute allowedRoles={["resident"]}>
+              <MyReports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute allowedRoles={["resident"]}>
+              <History />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute allowedRoles={["resident"]}>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute allowedRoles={["resident"]}>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute allowedRoles={["resident"]}>
+              <Notifications />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
