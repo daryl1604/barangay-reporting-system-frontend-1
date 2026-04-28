@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './styles/Settings.css';
 import ResidentLayout from './components/layout/ResidentLayout';
+import { readNotificationPrefs, saveNotificationPrefs } from '../../utils/notificationPrefs';
 
 function ToggleSwitch({ checked, onChange }) {
   return (
@@ -12,17 +13,22 @@ function ToggleSwitch({ checked, onChange }) {
 }
 
 export default function Settings() {
-  const [prefs, setPrefs] = useState({
-    statusAlerts: true,
-    adminAlerts: true,
-    emailSummary: false,
-  });
+  const [prefs, setPrefs] = useState(readNotificationPrefs());
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwords, setPasswords] = useState({ current: '', newPass: '', confirm: '' });
   const [pwErrors, setPwErrors] = useState({});
   const [pwSuccess, setPwSuccess] = useState(false);
 
-  const setPref = (key, val) => setPrefs(p => ({ ...p, [key]: val }));
+  const setPref = (key, val) => {
+    const nextPrefs = saveNotificationPrefs({ ...prefs, [key]: val });
+    setPrefs(nextPrefs);
+
+    if (key === 'badgeVisible' && !val) {
+      window.alert('Notification badge will be hidden');
+    }
+
+    window.dispatchEvent(new CustomEvent('resident-notifications-updated'));
+  };
 
   const validatePassword = () => {
     const errs = {};
@@ -36,7 +42,11 @@ export default function Settings() {
 
   const handlePasswordSave = () => {
     const errs = validatePassword();
-    if (Object.keys(errs).length > 0) { setPwErrors(errs); return; }
+    if (Object.keys(errs).length > 0) {
+      setPwErrors(errs);
+      return;
+    }
+
     setPwSuccess(true);
     setShowPasswordForm(false);
     setPasswords({ current: '', newPass: '', confirm: '' });
@@ -52,7 +62,7 @@ export default function Settings() {
     <ResidentLayout activePage="settings">
       {pwSuccess && (
         <div className="submit-report__toast" style={{ background: '#22c55e' }}>
-          ✓ Password updated successfully.
+          Password updated successfully.
         </div>
       )}
 
@@ -63,49 +73,42 @@ export default function Settings() {
       </div>
 
       <div className="settings__grid">
-        {/* Notification Preferences */}
-        <div className="settings__card">
-          <div className="settings__card-title">Notification Preferences</div>
-          <div className="settings__card-sub">Choose how the resident receives status changes.</div>
+        <div className="settings__card settings__card--wide">
+          <div className="settings__card-title">Notification Preferences, Privacy and Security</div>
+          <div className="settings__card-sub">Your resident alerts and account controls now live in one container.</div>
 
           <div className="settings__toggle-row">
             <div>
               <div className="settings__toggle-label">Status update alerts</div>
-              <div className="settings__toggle-desc">Receive in-app updates when a report changes status.</div>
+              <div className="settings__toggle-desc">If on, status updates continue appearing in your resident notifications.</div>
             </div>
             <ToggleSwitch checked={prefs.statusAlerts} onChange={v => setPref('statusAlerts', v)} />
           </div>
 
           <div className="settings__toggle-row">
             <div>
-              <div className="settings__toggle-label">Admin comment alerts</div>
-              <div className="settings__toggle-desc">Get notified whenever barangay staff adds feedback.</div>
+              <div className="settings__toggle-label">Admin alerts</div>
+              <div className="settings__toggle-desc">If on, admin comments and alerts continue appearing in your resident notifications.</div>
             </div>
             <ToggleSwitch checked={prefs.adminAlerts} onChange={v => setPref('adminAlerts', v)} />
           </div>
 
           <div className="settings__toggle-row">
             <div>
-              <div className="settings__toggle-label">Email summary</div>
-              <div className="settings__toggle-desc">Send a summary of report updates to your email address.</div>
+              <div className="settings__toggle-label">Notification badge</div>
+              <div className="settings__toggle-desc">If on, the unread badge stays visible in the top bar until notifications are read or removed.</div>
             </div>
-            <ToggleSwitch checked={prefs.emailSummary} onChange={v => setPref('emailSummary', v)} />
+            <ToggleSwitch checked={prefs.badgeVisible} onChange={v => setPref('badgeVisible', v)} />
           </div>
-        </div>
-
-        {/* Privacy and Security */}
-        <div className="settings__card">
-          <div className="settings__card-title">Privacy and Security</div>
-          <div className="settings__card-sub">Resident-safe controls with the same dashboard card treatment.</div>
 
           <div className="settings__privacy-item">
             <div>
               <div className="settings__privacy-label">Change Password</div>
               <div className="settings__privacy-desc">Update your password regularly for account protection.</div>
               {showPasswordForm && (
-                <div style={{ marginTop: 12 }}>
+                <div className="settings__pw-form">
                   {['current', 'newPass', 'confirm'].map(k => (
-                    <div key={k} style={{ marginBottom: 10 }}>
+                    <div key={k}>
                       <input
                         type="password"
                         className={`submit-report__input${pwErrors[k] ? ' submit-report__input--error' : ''}`}
@@ -120,7 +123,7 @@ export default function Settings() {
                       {pwErrors[k] && <div className="submit-report__error-text">{pwErrors[k]}</div>}
                     </div>
                   ))}
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div className="settings__pw-actions">
                     <button className="submit-report__btn-submit" style={{ padding: '8px 16px', fontSize: 13 }} onClick={handlePasswordSave}>
                       Save
                     </button>
@@ -138,18 +141,10 @@ export default function Settings() {
 
           <div className="settings__privacy-item">
             <div>
-              <div className="settings__privacy-label">Visibility</div>
-              <div className="settings__privacy-desc">Your reports remain private to your resident account and barangay admins.</div>
-            </div>
-            <button className="settings__privacy-btn">Private</button>
-          </div>
-
-          <div className="settings__privacy-item">
-            <div>
-              <div className="settings__privacy-label">Log Out</div>
+              <div className="settings__privacy-label">Logout</div>
               <div className="settings__privacy-desc">Return to the sign in and sign up screens.</div>
             </div>
-            <button className="settings__privacy-btn" onClick={handleLogout}>Open</button>
+            <button className="settings__privacy-btn" onClick={handleLogout}>Logout</button>
           </div>
         </div>
       </div>

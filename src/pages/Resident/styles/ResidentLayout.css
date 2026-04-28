@@ -2,7 +2,7 @@
 
 .resident-shell {
   min-height: 100vh;
-  padding-top: 24px;
+  padding: 24px 0 40px;
   background:
     radial-gradient(circle at top left, rgba(76, 145, 255, 0.22), transparent 28%),
     linear-gradient(180deg, #f2f7ff 0%, #ecf2fb 100%);
@@ -267,7 +267,7 @@
   grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
   gap: 24px;
   max-width: 1440px;
-  margin: 24px auto 40px;
+  margin: 24px auto 0;
   padding: 0 24px;
 }
 

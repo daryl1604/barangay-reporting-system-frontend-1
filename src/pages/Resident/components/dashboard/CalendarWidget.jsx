@@ -1,26 +1,45 @@
 import React from 'react';
 import '../../styles/ResidentDashboard.css';
+import { buildCalendarDays, isSameDay } from '../../../../utils/dateUtils';
 
 const DAY_NAMES = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
-export default function CalendarWidget() {
+export default function CalendarWidget({
+  viewDate,
+  selectedDate,
+  reportDates = [],
+  onSelectDate,
+  onClearDate,
+  onPreviousMonth,
+  onNextMonth,
+}) {
   const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const monthName = today.toLocaleString('default', { month: 'long' });
-
-  // Build grid cells: leading nulls + day numbers
-  const cells = [];
-  for (let i = 0; i < firstDay; i++) cells.push(null);
-  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+  const monthName = viewDate.toLocaleString('default', { month: 'long' });
+  const cells = buildCalendarDays(viewDate);
 
   return (
     <div className="res-calendar">
-      <div className="res-calendar__label">CALENDAR</div>
-      <div className="res-calendar__month">
-        {monthName} {year}
+      <div className="res-calendar__header">
+        <div>
+          <div className="res-calendar__label">CALENDAR</div>
+          <div className="res-calendar__month">
+            {monthName} {viewDate.getFullYear()}
+          </div>
+        </div>
+        {selectedDate ? (
+          <button className="res-calendar__reset" type="button" onClick={onClearDate}>
+            Reset
+          </button>
+        ) : null}
+      </div>
+
+      <div className="res-calendar__controls">
+        <button className="res-calendar__control" type="button" onClick={onPreviousMonth}>
+          ‹
+        </button>
+        <button className="res-calendar__control" type="button" onClick={onNextMonth}>
+          ›
+        </button>
       </div>
 
       <div className="res-calendar__grid">
@@ -34,14 +53,20 @@ export default function CalendarWidget() {
           day === null ? (
             <div key={`empty-${i}`} className="res-calendar__day res-calendar__day--empty" />
           ) : (
-            <div
-              key={day}
+            <button
+              key={day.toISOString()}
+              type="button"
               className={`res-calendar__day${
-                day === today.getDate() ? ' res-calendar__day--today' : ''
+                isSameDay(day, today) ? ' res-calendar__day--today' : ''
+              }${
+                selectedDate && isSameDay(day, selectedDate) ? ' res-calendar__day--selected' : ''
+              }${
+                reportDates.some((reportDate) => isSameDay(reportDate, day)) ? ' res-calendar__day--has-report' : ''
               }`}
+              onClick={() => onSelectDate(day)}
             >
-              {day}
-            </div>
+              {day.getDate()}
+            </button>
           )
         )}
       </div>

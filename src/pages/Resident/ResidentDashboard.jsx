@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './styles/ResidentDashboard.css';
 import ResidentLayout from './components/layout/ResidentLayout';
 import API from '../../api/axios';
 import { normalizeReportPayload } from '../../utils/reportUtils';
+import { isNotificationVisible, readNotificationPrefs } from '../../utils/notificationPrefs';
+import { isSameDay, toDate } from '../../utils/dateUtils';
 
 // Sub-components
 import MetricCard        from './components/dashboard/MetricCard';
@@ -14,8 +16,12 @@ import ReportModal       from './components/reports/ReportModal';
 
 export default function ResidentDashboard() {
   const [reports, setReports] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [viewDate, setViewDate] = useState(new Date());
+  const reportsGridRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,8 +31,12 @@ export default function ResidentDashboard() {
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const res = await API.get('/reports/my');
-      setReports(normalizeReportPayload(res.data));
+      const [reportsRes, notificationsRes] = await Promise.all([
+        API.get('/reports/my'),
+        API.get('/notifications'),
+      ]);
+      setReports(normalizeReportPayload(reportsRes.data));
+      setNotifications(Array.isArray(notificationsRes.data) ? notificationsRes.data : []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -39,17 +49,73 @@ export default function ResidentDashboard() {
   const inProgress = reports.filter((r) => r.status === 'In Progress').length;
   const resolved   = reports.filter((r) => r.status === 'Resolved').length;
 
-  const recentUpdates = [
-    { category: 'Noise Complaint',    action: 'Admin comment added',          status: 'In Progress', tag: 'Noise Complaint'    },
-    { category: 'Public Disturbance', action: 'Status updated to In Progress', status: 'In Progress', tag: 'Public Disturbance' },
-    { category: 'Broken Streetlight', action: 'Status updated to Resolved',    status: 'Resolved',    tag: 'Streetlight'        },
-    { category: 'Trash Complaint',    action: 'Report received',               status: 'Pending',     tag: 'Trash'              },
-  ];
+  const updateReportInState = (nextReport) => {
+    setReports((currentReports) => currentReports.map((report) => (
+      report.id === nextReport.id || report._id === nextReport._id ? { ...report, ...nextReport } : report
+    )));
+    setSelectedReport(nextReport);
+  };
+
+  const filteredReports = selectedDate
+    ? reports.filter((report) => isSameDay(toDate(report.createdAt || report.incidentDate), selectedDate))
+    : reports;
+  const reportDates = reports.map((report) => toDate(report.createdAt || report.incidentDate)).filter(Boolean);
+  const prefs = readNotificationPrefs();
+  const recentUpdates = notifications
+    .filter((notification) => isNotificationVisible(notification, prefs))
+    .slice(0, 4)
+    .map((notification) => {
+      const linkedReport = reports.find((report) => report.id === notification.report || report._id === notification.report);
+
+      return {
+        id: notification._id,
+        category: linkedReport?.category || 'Report Update',
+        action: notification.title || notification.message || 'Notification',
+        status: linkedReport?.status || 'Pending',
+        tag: linkedReport?.purok || 'Update',
+        reportId: linkedReport?.id || linkedReport?._id || notification.report,
+      };
+    });
+
+  useLayoutEffect(() => {
+    const syncPreviewCardHeights = () => {
+      const gridElement = reportsGridRef.current;
+      if (!gridElement) {
+        return;
+      }
+
+      const cardElements = Array.from(gridElement.querySelectorAll('.res-preview-card'));
+      if (cardElements.length === 0) {
+        return;
+      }
+
+      cardElements.forEach((cardElement) => {
+        cardElement.style.height = 'auto';
+      });
+
+      const maxHeight = Math.max(...cardElements.map((cardElement) => cardElement.offsetHeight));
+
+      cardElements.forEach((cardElement) => {
+        cardElement.style.height = `${maxHeight}px`;
+      });
+    };
+
+    syncPreviewCardHeights();
+    window.addEventListener('resize', syncPreviewCardHeights);
+
+    return () => {
+      window.removeEventListener('resize', syncPreviewCardHeights);
+    };
+  }, [filteredReports, loading]);
 
   return (
     <ResidentLayout activePage="dashboard">
       {selectedReport && (
-        <ReportModal report={selectedReport} onClose={() => setSelectedReport(null)} />
+        <ReportModal
+          report={selectedReport}
+          onClose={() => setSelectedReport(null)}
+          onReportUpdate={updateReportInState}
+        />
       )}
 
       <div className="res-dashboard">
@@ -79,23 +145,46 @@ export default function ResidentDashboard() {
               >›</button>
             </div>
             <div className="res-dashboard__reports-sub">
-              Short overview of your open and recently resolved complaints.
+              {selectedDate ? 'Reports filed on the selected date.' : 'Short overview of your open and recently resolved complaints.'}
             </div>
-            <div className="res-dashboard__reports-grid">
-              {reports.slice(0, 6).map((r) => (
-                <ReportPreviewCard key={r.id} report={r} onClick={setSelectedReport} />
-              ))}
-            </div>
+            {loading ? (
+              <div className="res-dashboard__empty">Loading your reports...</div>
+            ) : filteredReports.length === 0 ? (
+              <div className="res-dashboard__empty">No reports found for the selected date.</div>
+            ) : (
+              <div className="res-dashboard__reports-grid" ref={reportsGridRef}>
+                {filteredReports.slice(0, 6).map((r) => (
+                  <ReportPreviewCard key={r.id} report={r} onClick={setSelectedReport} />
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Right column */}
         <div className="res-dashboard__right">
-          <CalendarWidget />
+          <CalendarWidget
+            viewDate={viewDate}
+            selectedDate={selectedDate}
+            reportDates={reportDates}
+            onSelectDate={(date) => {
+              setSelectedDate(date);
+              setViewDate(new Date(date.getFullYear(), date.getMonth(), 1));
+            }}
+            onClearDate={() => setSelectedDate(null)}
+            onPreviousMonth={() => setViewDate((currentDate) => new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}
+            onNextMonth={() => setViewDate((currentDate) => new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}
+          />
           <RecentUpdates
             updates={recentUpdates}
             onView={() => navigate('/notifications')}
-            onItemClick={() => navigate('/notifications')}
+            onItemClick={(item) => {
+              const report = reports.find((entry) => entry.id === item.reportId || entry._id === item.reportId);
+
+              if (report) {
+                setSelectedReport(report);
+              }
+            }}
           />
         </div>
       </div>

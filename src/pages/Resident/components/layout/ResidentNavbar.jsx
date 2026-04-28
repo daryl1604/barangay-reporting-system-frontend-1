@@ -6,8 +6,6 @@ export default function ResidentNavbar({ activePage, onNavigate, unreadCount, us
     ? user.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
     : 'R';
 
-  const myReportsActive = activePage === 'reports';
-  const newReportActive = activePage === 'submit';
   const bellActive = activePage === 'notifications';
   const profileActive = activePage === 'profile';
 
@@ -15,18 +13,6 @@ export default function ResidentNavbar({ activePage, onNavigate, unreadCount, us
     <header className="res-navbar">
       <div className="res-navbar__brand">Barangay Mataas na Lupa Monitoring</div>
       <div className="res-navbar__actions">
-        <button
-          className={`res-navbar__btn${myReportsActive ? ' res-navbar__btn--active' : ''}`}
-          onClick={() => onNavigate('reports')}
-        >
-          My Reports
-        </button>
-        <button
-          className={`res-navbar__btn${newReportActive ? ' res-navbar__btn--active' : ''}`}
-          onClick={() => onNavigate('submit')}
-        >
-          New Report
-        </button>
         <button className={`res-navbar__bell${bellActive ? ' res-navbar__bell--active' : ''}`} onClick={() => onNavigate('notifications')}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>

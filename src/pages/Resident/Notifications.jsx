@@ -4,6 +4,9 @@ import ResidentLayout from './components/layout/ResidentLayout';
 import NotificationItem from './components/notifications/NotificationItem';
 import ReportModal from './components/reports/ReportModal';
 import API from '../../api/axios';
+import { deleteNotification, markNotificationAsRead } from '../../api/notifications';
+import { normalizeReportPayload } from '../../utils/reportUtils';
+import { isNotificationVisible, readNotificationPrefs } from '../../utils/notificationPrefs';
 
 const normalizeNotifications = (payload) => {
   const notifications = Array.isArray(payload)
@@ -14,21 +17,17 @@ const normalizeNotifications = (payload) => {
 
   return notifications.map(notification => ({
     ...notification,
+    id: notification.id || notification._id,
     title: notification.title || notification.message || notification.subject || 'Notification',
     description: notification.description || notification.message || notification.body || '',
     date: notification.date || notification.createdAt || notification.timestamp || '',
+    reportId: notification.reportId || notification.report || '',
     unread: typeof notification.unread === 'boolean' ? notification.unread : !notification.read,
   }));
 };
 
 const resolveReportPayload = (payload) => {
-  const reports = Array.isArray(payload)
-    ? payload
-    : Array.isArray(payload?.reports)
-      ? payload.reports
-      : [];
-
-  return reports.map(report => ({ ...report, id: report.id || report._id }));
+  return normalizeReportPayload(payload);
 };
 
 export default function Notifications() {
@@ -36,9 +35,19 @@ export default function Notifications() {
   const [reports, setReports] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [prefs, setPrefs] = useState(readNotificationPrefs());
 
   useEffect(() => {
     loadNotifications();
+  }, []);
+
+  useEffect(() => {
+    const handlePrefsUpdated = (event) => {
+      setPrefs(event.detail || readNotificationPrefs());
+    };
+
+    window.addEventListener('resident-notification-prefs-updated', handlePrefsUpdated);
+    return () => window.removeEventListener('resident-notification-prefs-updated', handlePrefsUpdated);
   }, []);
 
   const loadNotifications = async () => {
@@ -58,19 +67,58 @@ export default function Notifications() {
     }
   };
 
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const visibleNotifications = notifications.filter((notification) => isNotificationVisible(notification, prefs));
+  const unreadCount = visibleNotifications.filter(n => n.unread).length;
 
-  const handleNotifClick = (notif) => {
+  const handleNotifClick = async (notif) => {
+    if (notif.unread) {
+      try {
+        await markNotificationAsRead(notif._id || notif.id);
+        const nextNotifications = notifications.map((notification) => (
+          (notification._id || notification.id) === (notif._id || notif.id)
+            ? { ...notification, unread: false, read: true }
+            : notification
+        ));
+        setNotifications(nextNotifications);
+        window.dispatchEvent(new CustomEvent('resident-notifications-updated'));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     if (notif.reportId) {
       const report = reports.find(r => r.id === notif.reportId);
       if (report) setSelectedReport(report);
     }
   };
 
+  const handleDeleteNotification = async (notif) => {
+    try {
+      await deleteNotification(notif._id || notif.id);
+      setNotifications((currentNotifications) =>
+        currentNotifications.filter((notification) => (notification._id || notification.id) !== (notif._id || notif.id))
+      );
+      window.dispatchEvent(new CustomEvent('resident-notifications-updated'));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleReportUpdate = (nextReport) => {
+    setReports((currentReports) => currentReports.map((report) => (
+      report.id === nextReport.id || report._id === nextReport._id ? { ...report, ...nextReport } : report
+    )));
+    setSelectedReport(nextReport);
+  };
+
   return (
     <ResidentLayout activePage="notifications" unreadCount={unreadCount}>
       {selectedReport && (
-        <ReportModal report={selectedReport} onClose={() => setSelectedReport(null)} />
+        <ReportModal
+          report={selectedReport}
+          onClose={() => setSelectedReport(null)}
+          onReportUpdate={handleReportUpdate}
+        />
       )}
 
       <div className="notifications__header">
@@ -91,17 +139,18 @@ export default function Notifications() {
           <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8', fontSize: 15 }}>
             Loading notifications...
           </div>
-        ) : notifications.length === 0 ? (
+        ) : visibleNotifications.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8', fontSize: 15 }}>
-            No notifications yet.
+            No notifications match your current settings.
           </div>
         ) : (
-          notifications.map((n, i) => (
+          visibleNotifications.map((n, i) => (
             <NotificationItem
               key={i}
               notification={n}
               isUnread={n.unread}
               onClick={handleNotifClick}
+              onDelete={handleDeleteNotification}
             />
           ))
         )}

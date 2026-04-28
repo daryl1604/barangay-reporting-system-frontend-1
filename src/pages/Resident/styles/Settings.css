@@ -30,7 +30,7 @@
   /* Two-column layout */
   .settings__grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 20px;
     align-items: start;
   }
@@ -40,6 +40,9 @@
     background: #fff;
     border-radius: 18px;
     padding: 24px;
+  }
+  .settings__card--wide {
+    max-width: 860px;
   }
   
   .settings__card-title {

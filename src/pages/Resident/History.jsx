@@ -39,11 +39,21 @@ export default function History() {
     'In Progress': 'Admin acknowledged the complaint. Barangay tanod scheduled to visit the area.',
     Resolved: 'Maintenance request logged. Issue has been resolved and verified.',
   };
+  const handleReportUpdate = (nextReport) => {
+    setReports((currentReports) => currentReports.map((report) => (
+      report.id === nextReport.id || report._id === nextReport._id ? { ...report, ...nextReport } : report
+    )));
+    setSelectedReport(nextReport);
+  };
 
   return (
     <ResidentLayout activePage="history">
       {selectedReport && (
-        <ReportModal report={selectedReport} onClose={() => setSelectedReport(null)} />
+        <ReportModal
+          report={selectedReport}
+          onClose={() => setSelectedReport(null)}
+          onReportUpdate={handleReportUpdate}
+        />
       )}
 
       <div className="history__header">

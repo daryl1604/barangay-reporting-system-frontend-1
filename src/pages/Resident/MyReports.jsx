@@ -31,11 +31,21 @@ export default function MyReports() {
   };
 
   const filtered = filter === 'All' ? reports : reports.filter(r => r.status === filter);
+  const handleReportUpdate = (nextReport) => {
+    setReports((currentReports) => currentReports.map((report) => (
+      report.id === nextReport.id || report._id === nextReport._id ? { ...report, ...nextReport } : report
+    )));
+    setSelectedReport(nextReport);
+  };
 
   return (
     <ResidentLayout activePage="reports">
       {selectedReport && (
-        <ReportModal report={selectedReport} onClose={() => setSelectedReport(null)} />
+        <ReportModal
+          report={selectedReport}
+          onClose={() => setSelectedReport(null)}
+          onReportUpdate={handleReportUpdate}
+        />
       )}
 
       <div className="my-reports__header">

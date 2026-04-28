@@ -89,6 +89,23 @@
     color: #1a2540;
     margin-bottom: 4px;
   }
+  .profile__info-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .profile__edit-btn,
+  .profile__save-btn {
+    border: none;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #2563eb;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
   
   .profile__info-sub {
     font-size: 13px;
@@ -118,6 +135,28 @@
     font-size: 14px;
     font-weight: 700;
     color: #1a2540;
+  }
+  .profile__field-input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font: inherit;
+    font-size: 14px;
+    color: #1a2540;
+    background: #fff;
+  }
+  .profile__edit-actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .profile__save-error {
+    margin-top: 10px;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 600;
   }
   
   /* Summary card */

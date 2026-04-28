@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import './styles/SubmitReport.css';
 import ResidentLayout from './components/layout/ResidentLayout';
 import API from '../../api/axios';
-import { normalizeResidentUser } from '../../utils/userUtils';
+import { PUROK_OPTIONS } from '../../constants/puroks';
 
 const CATEGORIES = [
   'Trash Complaint',
@@ -14,8 +14,6 @@ const CATEGORIES = [
   'Road Damage',
   'Other',
 ];
-
-const PUROKS = ['Purok 1','Purok 2','Purok 3','Purok 4','Purok 5','Purok 6'];
 
 const GUIDE_ITEMS = [
   { title: 'Use the exact location', desc: 'Include landmarks, street name, or purok for faster barangay action.' },
@@ -36,30 +34,16 @@ function validate(fields) {
   return errors;
 }
 
-export default function SubmitReport({ user }) {
+export default function SubmitReport() {
   const today = new Date().toISOString().split('T')[0];
   const fileRef = useRef(null);
-  const currentUser = (() => {
-    if (user) {
-      return normalizeResidentUser(user);
-    }
-
-    try {
-      const saved = localStorage.getItem('user');
-      return saved ? normalizeResidentUser(JSON.parse(saved)) : null;
-    } catch {
-      return null;
-    }
-  })();
-
   const [fields, setFields] = useState({
     category: 'Trash Complaint',
-    purok: currentUser?.purok || 'Purok 1',
+    purok: PUROK_OPTIONS[0],
     location: '',
     date: today,
     personInvolved: '',
     description: '',
-    updateMethod: 'In App',
   });
   const [errors, setErrors] = useState({});
   const [fileName, setFileName] = useState('');
@@ -117,7 +101,6 @@ export default function SubmitReport({ user }) {
         date: fields.date,
         personInvolved: fields.personInvolved,
         description: fields.description,
-        updateMethod: fields.updateMethod,
         attachment: attachmentPayload,
         attachments: attachmentPayload ? [attachmentPayload] : [],
       });
@@ -141,7 +124,7 @@ export default function SubmitReport({ user }) {
   return (
     <ResidentLayout activePage="submit">
       {toast === 'success' && (
-        <div className="submit-report__toast">✓ Report submitted successfully! Reference number assigned.</div>
+        <div className="submit-report__toast">Report submitted successfully! Reference number assigned.</div>
       )}
       {toast === 'draft' && (
         <div className="submit-report__toast" style={{ background: '#3b72e8' }}>Draft saved.</div>
@@ -157,7 +140,6 @@ export default function SubmitReport({ user }) {
       </div>
 
       <div className="submit-report">
-        {/* Form */}
         <div className="submit-report__form-card">
           <div className="submit-report__row">
             <div className="submit-report__field">
@@ -181,7 +163,7 @@ export default function SubmitReport({ user }) {
                 onChange={e => set('purok', e.target.value)}
               >
                 <option value="">Select purok...</option>
-                {PUROKS.map(p => <option key={p} value={p}>{p}</option>)}
+                {PUROK_OPTIONS.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
               {errors.purok && <div className="submit-report__error-text">{errors.purok}</div>}
             </div>
@@ -238,40 +220,22 @@ export default function SubmitReport({ user }) {
             {errors.description && <div className="submit-report__error-text">{errors.description}</div>}
           </div>
 
-          <div className="submit-report__row">
-            <div className="submit-report__field">
-              <label className="submit-report__field-label">Attach Photo</label>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={handleFileChange}
-              />
-              <button
-                className="submit-report__file-btn"
-                onClick={() => fileRef.current.click()}
-                type="button"
-              >
-                {fileName ? '📎 ' + fileName : 'Choose file or photo'}
-              </button>
-            </div>
-
-            <div className="submit-report__field">
-              <label className="submit-report__field-label">Preferred Update Method</label>
-              <div className="submit-report__toggle-group">
-                {['In App', 'Email'].map(m => (
-                  <button
-                    key={m}
-                    type="button"
-                    className={`submit-report__toggle-btn${fields.updateMethod === m ? ' submit-report__toggle-btn--active' : ''}`}
-                    onClick={() => set('updateMethod', m)}
-                  >
-                    {m}
-                  </button>
-                ))}
-              </div>
-            </div>
+          <div className="submit-report__field">
+            <label className="submit-report__field-label">Attach Photo</label>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handleFileChange}
+            />
+            <button
+              className="submit-report__file-btn"
+              onClick={() => fileRef.current.click()}
+              type="button"
+            >
+              {fileName || 'Choose file or photo'}
+            </button>
           </div>
 
           <div className="submit-report__actions">
@@ -289,7 +253,6 @@ export default function SubmitReport({ user }) {
           </div>
         </div>
 
-        {/* Guide */}
         <div>
           <div className="submit-report__guide">
             <div className="submit-report__guide-title">Submission Guide</div>

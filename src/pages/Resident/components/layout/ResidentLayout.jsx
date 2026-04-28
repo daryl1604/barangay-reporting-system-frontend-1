@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ResidentNavbar from "./ResidentNavbar";
 import ResidentSidebar from "./ResidentSidebar";
 import { normalizeResidentUser } from "../../../../utils/userUtils";
+import API from "../../../../api/axios";
+import { readNotificationPrefs, isNotificationVisible } from "../../../../utils/notificationPrefs";
 
 const PAGE_TO_ROUTE = {
   dashboard: "/resident",
@@ -28,23 +30,54 @@ export default function ResidentLayout({ activePage, children, user, unreadCount
   const location = useLocation();
   const navigate = useNavigate();
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+  const [resident, setResident] = useState(null);
+  const [resolvedUnreadCount, setResolvedUnreadCount] = useState(unreadCount);
   const currentPage = activePage || resolvePage(location.pathname);
 
-  const resident = useMemo(() => {
-    if (user) return normalizeResidentUser(user);
-    if (typeof window === "undefined") return null;
+  const loadResident = () => {
+    if (user) {
+      setResident(normalizeResidentUser(user));
+      return;
+    }
+
+    if (typeof window === "undefined") {
+      setResident(null);
+      return;
+    }
+
     try {
       const raw = localStorage.getItem("user");
-      return raw ? normalizeResidentUser(JSON.parse(raw)) : null;
+      setResident(raw ? normalizeResidentUser(JSON.parse(raw)) : null);
     } catch {
-      return null;
+      setResident(null);
     }
-  }, [user]);
+  };
+
+  const refreshUnreadCount = async () => {
+    try {
+      const response = await API.get("/notifications");
+      const notifications = Array.isArray(response.data)
+        ? response.data
+        : Array.isArray(response.data?.notifications)
+          ? response.data.notifications
+          : [];
+      const prefs = readNotificationPrefs();
+      const nextCount = prefs.badgeVisible
+        ? notifications.filter((notification) => !notification.read && isNotificationVisible(notification, prefs)).length
+        : 0;
+
+      setResolvedUnreadCount(nextCount);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleNavigate = (page) => {
     const route = PAGE_TO_ROUTE[page];
-    if (route) {
-      navigate(route);
+    if (route && route !== location.pathname) {
+      startTransition(() => {
+        navigate(route);
+      });
     }
   };
 
@@ -66,12 +99,38 @@ export default function ResidentLayout({ activePage, children, user, unreadCount
   };
 
   useEffect(() => {
+    loadResident();
+  }, [user]);
+
+  useEffect(() => {
+    if (unreadCount > 0) {
+      setResolvedUnreadCount(unreadCount);
+      return;
+    }
+
+    refreshUnreadCount();
+  }, [unreadCount]);
+
+  useEffect(() => {
     const requestLogout = () => {
       setIsLogoutConfirmOpen(true);
     };
 
+    const handleUserUpdated = () => loadResident();
+    const handleNotificationsUpdated = () => refreshUnreadCount();
+    const handlePrefsUpdated = () => refreshUnreadCount();
+
     window.addEventListener("resident-request-logout", requestLogout);
-    return () => window.removeEventListener("resident-request-logout", requestLogout);
+    window.addEventListener("resident-user-updated", handleUserUpdated);
+    window.addEventListener("resident-notifications-updated", handleNotificationsUpdated);
+    window.addEventListener("resident-notification-prefs-updated", handlePrefsUpdated);
+
+    return () => {
+      window.removeEventListener("resident-request-logout", requestLogout);
+      window.removeEventListener("resident-user-updated", handleUserUpdated);
+      window.removeEventListener("resident-notifications-updated", handleNotificationsUpdated);
+      window.removeEventListener("resident-notification-prefs-updated", handlePrefsUpdated);
+    };
   }, []);
 
   return (
@@ -97,7 +156,7 @@ export default function ResidentLayout({ activePage, children, user, unreadCount
         </div>
       ) : null}
 
-      <ResidentNavbar activePage={currentPage} onNavigate={handleNavigate} unreadCount={unreadCount} user={resident} />
+      <ResidentNavbar activePage={currentPage} onNavigate={handleNavigate} unreadCount={resolvedUnreadCount} user={resident} />
       <div className="resident-shell__content">
         <ResidentSidebar
           activePage={currentPage}
