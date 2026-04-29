@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './styles/Settings.css';
 import ResidentLayout from './components/layout/ResidentLayout';
 import { readNotificationPrefs, saveNotificationPrefs } from '../../utils/notificationPrefs';
+import axios from '../../api/axios';
 
 function ToggleSwitch({ checked, onChange }) {
   return (
@@ -18,6 +19,7 @@ export default function Settings() {
   const [passwords, setPasswords] = useState({ current: '', newPass: '', confirm: '' });
   const [pwErrors, setPwErrors] = useState({});
   const [pwSuccess, setPwSuccess] = useState(false);
+  const [pwLoading, setPwLoading] = useState(false);
 
   const setPref = (key, val) => {
     const nextPrefs = saveNotificationPrefs({ ...prefs, [key]: val });
@@ -40,18 +42,32 @@ export default function Settings() {
     return errs;
   };
 
-  const handlePasswordSave = () => {
+  const handlePasswordSave = async () => {
     const errs = validatePassword();
     if (Object.keys(errs).length > 0) {
       setPwErrors(errs);
       return;
     }
 
-    setPwSuccess(true);
-    setShowPasswordForm(false);
-    setPasswords({ current: '', newPass: '', confirm: '' });
+    setPwLoading(true);
     setPwErrors({});
-    setTimeout(() => setPwSuccess(false), 3000);
+
+    try {
+      await axios.put('/auth/change-password', {
+        currentPassword: passwords.current,
+        newPassword: passwords.newPass,
+      });
+
+      setPwSuccess(true);
+      setShowPasswordForm(false);
+      setPasswords({ current: '', newPass: '', confirm: '' });
+      setTimeout(() => setPwSuccess(false), 3000);
+    } catch (error) {
+      const msg = error.response?.data?.msg || 'Failed to change password. Please try again.';
+      setPwErrors({ submit: msg });
+    } finally {
+      setPwLoading(false);
+    }
   };
 
   const handleLogout = () => {
@@ -107,6 +123,7 @@ export default function Settings() {
               <div className="settings__privacy-desc">Update your password regularly for account protection.</div>
               {showPasswordForm && (
                 <div className="settings__pw-form">
+                  {pwErrors.submit && <div className="submit-report__error-text" style={{ marginBottom: '12px' }}>{pwErrors.submit}</div>}
                   {['current', 'newPass', 'confirm'].map(k => (
                     <div key={k}>
                       <input
@@ -118,16 +135,17 @@ export default function Settings() {
                           setPasswords(p => ({ ...p, [k]: e.target.value }));
                           if (pwErrors[k]) setPwErrors(p => ({ ...p, [k]: '' }));
                         }}
+                        disabled={pwLoading}
                         style={{ width: '100%', boxSizing: 'border-box' }}
                       />
                       {pwErrors[k] && <div className="submit-report__error-text">{pwErrors[k]}</div>}
                     </div>
                   ))}
                   <div className="settings__pw-actions">
-                    <button className="submit-report__btn-submit" style={{ padding: '8px 16px', fontSize: 13 }} onClick={handlePasswordSave}>
-                      Save
+                    <button className="submit-report__btn-submit" style={{ padding: '8px 16px', fontSize: 13 }} onClick={handlePasswordSave} disabled={pwLoading}>
+                      {pwLoading ? 'Saving...' : 'Save'}
                     </button>
-                    <button className="submit-report__btn-draft" style={{ padding: '8px 16px', fontSize: 13 }} onClick={() => { setShowPasswordForm(false); setPwErrors({}); }}>
+                    <button className="submit-report__btn-draft" style={{ padding: '8px 16px', fontSize: 13 }} onClick={() => { setShowPasswordForm(false); setPwErrors({}); }} disabled={pwLoading}>
                       Cancel
                     </button>
                   </div>
