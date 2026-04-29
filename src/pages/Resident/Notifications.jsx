@@ -30,6 +30,8 @@ const resolveReportPayload = (payload) => {
   return normalizeReportPayload(payload);
 };
 
+const getNotificationId = (notification) => notification?._id || notification?.id || '';
+
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [reports, setReports] = useState([]);
@@ -71,11 +73,13 @@ export default function Notifications() {
   const unreadCount = visibleNotifications.filter(n => n.unread).length;
 
   const handleNotifClick = async (notif) => {
+    const notificationId = getNotificationId(notif);
+
     if (notif.unread) {
       try {
-        await markNotificationAsRead(notif._id || notif.id);
+        await markNotificationAsRead(notificationId);
         const nextNotifications = notifications.map((notification) => (
-          (notification._id || notification.id) === (notif._id || notif.id)
+          getNotificationId(notification) === notificationId
             ? { ...notification, unread: false, read: true }
             : notification
         ));
@@ -93,14 +97,19 @@ export default function Notifications() {
   };
 
   const handleDeleteNotification = async (notif) => {
+    const notificationId = getNotificationId(notif);
+    const previousNotifications = notifications;
+
+    setNotifications((currentNotifications) =>
+      currentNotifications.filter((notification) => getNotificationId(notification) !== notificationId)
+    );
+
     try {
-      await deleteNotification(notif._id || notif.id);
-      setNotifications((currentNotifications) =>
-        currentNotifications.filter((notification) => (notification._id || notification.id) !== (notif._id || notif.id))
-      );
+      await deleteNotification(notificationId);
       window.dispatchEvent(new CustomEvent('resident-notifications-updated'));
     } catch (err) {
       console.error(err);
+      setNotifications(previousNotifications);
     }
   };
 
@@ -143,10 +152,10 @@ export default function Notifications() {
           <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8', fontSize: 15 }}>
             No notifications match your current settings.
           </div>
-        ) : (
-          visibleNotifications.map((n, i) => (
-            <NotificationItem
-              key={i}
+          ) : (
+            visibleNotifications.map((n, i) => (
+              <NotificationItem
+              key={getNotificationId(n) || i}
               notification={n}
               isUnread={n.unread}
               onClick={handleNotifClick}
