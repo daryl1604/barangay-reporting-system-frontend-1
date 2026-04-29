@@ -86,11 +86,13 @@ function ReportCardAdmin({
 
       <div className="report-card__body">
         {showDescription ? (
-          <div className="report-card__description-block">
-            <p className="report-card__description report-card__description--clamped">{description}</p>
-          </div>
+          <>
+            <div className="report-card__description-block">
+              <p className="report-card__description report-card__description--clamped">{description}</p>
+            </div>
+            <p className="report-card__location">{report.location || "Location unavailable"}</p>
+          </>
         ) : null}
-        <p className="report-card__location">{report.location || "Location unavailable"}</p>
       </div>
 
       <div className="report-card__actions">

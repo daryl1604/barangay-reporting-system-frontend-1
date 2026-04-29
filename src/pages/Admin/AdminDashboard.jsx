@@ -1200,24 +1200,43 @@ function AdminDashboard() {
   };
 
   const getReportAttachments = (report) => {
+    const resolveAttachmentUrl = (rawUrl) => {
+      const normalizedRawUrl = String(rawUrl || "").replace(/\\/g, "/").trim();
+
+      if (!normalizedRawUrl) {
+        return "";
+      }
+
+      if (/^(https?:|data:|blob:)/i.test(normalizedRawUrl)) {
+        return normalizedRawUrl;
+      }
+
+      const normalizedPath = normalizedRawUrl.replace(/^\/+/, "");
+      const apiOrigin = (API.defaults.baseURL || window.location.origin).replace(/\/api\/?$/, "");
+      return `${apiOrigin}/${normalizedPath}`;
+    };
+
     const normalizeAttachmentItem = (item, index) => {
       if (!item) {
         return null;
       }
 
       if (typeof item === "string") {
-        const fileName = item.split("/").pop() || `Attachment ${index + 1}`;
-        const isImage = /^data:image\//i.test(item) || /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(item);
+        const normalizedStringUrl = item.replace(/\\/g, "/").trim();
+        const fileName = normalizedStringUrl.split("/").pop() || `Attachment ${index + 1}`;
+        const isImage =
+          /^data:image\//i.test(normalizedStringUrl) ||
+          /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(normalizedStringUrl);
 
         return {
           id: `${fileName}-${index}`,
           name: fileName,
-          url: item,
+          url: resolveAttachmentUrl(normalizedStringUrl),
           isImage,
         };
       }
 
-      const url =
+      const rawUrl =
         item.url ||
         item.path ||
         item.src ||
@@ -1227,6 +1246,8 @@ function AdminDashboard() {
         item.data ||
         item.secure_url ||
         "";
+      const normalizedRawUrl = String(rawUrl).replace(/\\/g, "/").trim();
+      const url = resolveAttachmentUrl(normalizedRawUrl);
       const name =
         item.name ||
         item.fileName ||
@@ -2401,13 +2422,17 @@ function AdminDashboard() {
                           </div>
                         )}
 
-                        <div className="report-modal__report-file-meta">
-                          <p>{attachment.name}</p>
-                          <a href={attachment.url} target="_blank" rel="noreferrer">
-                            View attachment
-                          </a>
-                        </div>
-                      </article>
+	                        <div className="report-modal__report-file-meta">
+	                          <p>{attachment.name}</p>
+	                          {attachment.isImage ? (
+	                            <span className="report-modal__feedback-link">Photo attachment</span>
+	                          ) : (
+	                            <a href={attachment.url} target="_blank" rel="noreferrer">
+	                              View attachment
+	                            </a>
+	                          )}
+	                        </div>
+	                      </article>
                     ))}
                   </div>
                 </div>
