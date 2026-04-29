@@ -2422,6 +2422,13 @@ function AdminDashboard() {
                       <article key={attachment.id} className="report-modal__attachment-card">
                         {attachment.isImage ? (
                           <img src={attachment.url} alt={attachment.name} className="report-modal__report-image" />
+                        ) : attachment.isPdf ? (
+                          <embed
+                            src={attachment.url}
+                            type="application/pdf"
+                            className="report-modal__report-pdf"
+                            style={{ width: '100%', minHeight: 300 }}
+                          />
                         ) : (
                           <div className="report-modal__report-file">
                             <strong>{attachment.name}</strong>
@@ -2429,17 +2436,17 @@ function AdminDashboard() {
                           </div>
                         )}
 
-	                        <div className="report-modal__report-file-meta">
-	                          <p>{attachment.name}</p>
-	                          {attachment.isImage ? (
-	                            <span className="report-modal__feedback-link">Photo attachment</span>
-	                          ) : (
-	                            <a href={attachment.url} target="_blank" rel="noreferrer">
-	                              View attachment
-	                            </a>
-	                          )}
-	                        </div>
-	                      </article>
+                        <div className="report-modal__report-file-meta">
+                          <p>{attachment.name}</p>
+                          {attachment.isImage ? (
+                            <span className="report-modal__feedback-link">Photo attachment</span>
+                          ) : (
+                            <a href={attachment.url} target="_blank" rel="noreferrer">
+                              View attachment
+                            </a>
+                          )}
+                        </div>
+                      </article>
                     ))}
                   </div>
                 </div>

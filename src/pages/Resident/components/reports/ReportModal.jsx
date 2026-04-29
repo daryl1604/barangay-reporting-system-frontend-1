@@ -130,6 +130,13 @@ export default function ReportModal({ report, onClose, onReportUpdate }) {
                 <article key={attachment.id} className="report-modal__attachment-card">
                   {attachment.isImage ? (
                     <img src={attachment.url} alt={attachment.name} className="report-modal__report-image" />
+                  ) : attachment.isPdf ? (
+                    <embed
+                      src={attachment.url}
+                      type="application/pdf"
+                      className="report-modal__report-pdf"
+                      style={{ width: '100%', minHeight: 300 }}
+                    />
                   ) : (
                     <div className="report-modal__report-file">
                       <strong>{attachment.name}</strong>

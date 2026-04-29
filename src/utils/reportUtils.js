@@ -95,6 +95,9 @@ function normalizeAttachmentItem(item, index = 0) {
     mimeType.startsWith("image/") ||
     /^data:image\//i.test(url) ||
     /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(url || name);
+  const isPdf =
+    mimeType === "application/pdf" ||
+    /\.pdf$/i.test(url || name);
 
   if (!url) {
     return null;
@@ -107,6 +110,7 @@ function normalizeAttachmentItem(item, index = 0) {
     url,
     mimeType,
     isImage,
+    isPdf,
   };
 }
 
