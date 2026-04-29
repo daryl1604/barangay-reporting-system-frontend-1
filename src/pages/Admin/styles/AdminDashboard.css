@@ -1278,10 +1278,11 @@
 }
 
 .report-grid--today .report-card--compact {
-  height: 328px;
+  min-height: 330px;
+  height: auto;
   padding-top: 12px;
-  padding-bottom: 18px;
-  gap: 6px;
+  padding-bottom: 40px;
+  gap: 2px;
 }
 
 .report-grid--today .report-card__header {
@@ -3683,7 +3684,8 @@
   }
 
   .report-grid--today .report-card--compact {
-    height: 312px;
+    min-height: 328px;
+    height: auto;
     padding-top: 12px;
     padding-bottom: 18px;
   }

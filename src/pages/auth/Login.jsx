@@ -5,7 +5,6 @@ import loginImage from "../../assets/login-image.png";
 import { normalizeResidentUser } from "../../utils/userUtils";
 
 function Login() {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -36,48 +35,51 @@ function Login() {
     }
   };
 
-    return (
+  return (
+    <div className="login-shell">
       <div className="login-container">
-
-        {/* LEFT IMAGE */}
-        <div className="login-left">
+        <section className="login-left">
           <img src={loginImage} alt="Barangay Building" />
-          <div className="overlay"></div>
-        </div>
+          <div className="overlay" />
+          <div className="login-brand" aria-label="Barangay Monitoring System">
+            <div className="login-brand__text">
+              <strong>Barangay Incident Reporting System</strong>
+            </div>
+          </div>
+        </section>
 
-        {/* RIGHT SIDE */}
-        <div className="login-right">
+        <section className="login-right">
+          <div className="login-panel">
+            <div className="login-panel__badge">Secure Access</div>
+            <form className="login-form" onSubmit={handleLogin}>
+              <h2>Welcome Back</h2>
+              <p className="login-subtext">
+                Sign in to continue.
+              </p>
 
-          <form className="login-form" onSubmit={handleLogin}>
+              <label>Email</label>
+              <input
+                type="email"
+                placeholder="username@brs.com"
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
 
-            <h2>Login</h2>
-            <p className="login-subtext">
-              Welcome back! Please login to your account.
-            </p>
+              <label>Password</label>
+              <input
+                type="password"
+                placeholder="********"
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
 
-            <label>Email</label>
-            <input
-              type="email"
-              placeholder="username@brs.com"
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-
-            <label>Password</label>
-            <input
-              type="password"
-              placeholder="********"
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-
-            <button type="submit">Login</button>
-
-          </form>
-
-        </div>
+              <button type="submit">Login</button>
+            </form>
+          </div>
+        </section>
       </div>
-    );
+    </div>
+  );
 }
 
 export default Login;
