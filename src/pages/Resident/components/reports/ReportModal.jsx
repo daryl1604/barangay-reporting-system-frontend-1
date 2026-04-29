@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../../styles/MyReports.css';
 import API from '../../../../api/axios';
-import { getReportAttachments, normalizeReportStatus } from '../../../../utils/reportUtils';
+import { getCommentAttachment, getReportAttachments, normalizeReportStatus } from '../../../../utils/reportUtils';
 import { formatDateTime } from '../../../../utils/dateUtils';
 
 const statusColors = {
@@ -9,28 +9,6 @@ const statusColors = {
   'In Progress': '#3b82f6',
   Resolved: '#22c55e',
 };
-
-function getResidentCommentAttachment(comment) {
-  const item = comment?.attachment;
-
-  if (!item?.url) {
-    return null;
-  }
-
-  const name = item.name || item.fileName || item.originalName || 'Attachment';
-  const type = item.mimeType || item.type || '';
-  const isImage = Boolean(item.isImage) || type.startsWith('image/') || /^data:image\//i.test(item.url);
-  const normalizedUrl =
-    /^(https?:\/\/|data:|blob:)/i.test(item.url)
-      ? item.url
-      : `${API.defaults.baseURL?.replace(/\/api\/?$/, '') || window.location.origin}${item.url.startsWith('/') ? '' : '/'}${item.url}`;
-
-  return {
-    name,
-    url: normalizedUrl,
-    isImage,
-  };
-}
 
 export default function ReportModal({ report, onClose, onReportUpdate }) {
   const [currentReport, setCurrentReport] = useState(report);
@@ -189,7 +167,7 @@ export default function ReportModal({ report, onClose, onReportUpdate }) {
             </div>
           ) : (
             comments.map((fb, i) => {
-              const attachment = getResidentCommentAttachment(fb);
+              const attachment = getCommentAttachment(fb);
 
               return (
               <div key={fb._id || fb.id || i} className="report-modal__feedback-item">

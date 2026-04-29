@@ -1153,6 +1153,7 @@ function AnalyticsDashboard({ reports }) {
       });
 
       setSavedReports((currentReports) => [savedReport, ...currentReports]);
+      setSavedReportsError("");
       setSaveMessage("Report saved successfully.");
     } catch (error) {
       console.error(error);

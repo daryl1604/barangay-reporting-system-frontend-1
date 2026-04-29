@@ -80,6 +80,7 @@ function AdminDashboard() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [viewDate, setViewDate] = useState(new Date());
   const [selectedReport, setSelectedReport] = useState(null);
+  const [isSelectedReportLoading, setIsSelectedReportLoading] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [attachmentFile, setAttachmentFile] = useState(null);
   const [attachmentPreviewUrl, setAttachmentPreviewUrl] = useState("");
@@ -931,6 +932,7 @@ function AdminDashboard() {
 
     const requestId = selectedReportRequestRef.current + 1;
     selectedReportRequestRef.current = requestId;
+    setIsSelectedReportLoading(true);
     setSelectedReport(report);
 
     try {
@@ -943,11 +945,16 @@ function AdminDashboard() {
       setSelectedReport((currentReport) => mergeReportDetails(currentReport && currentReport._id === report._id ? currentReport : report, detailedReport));
     } catch (error) {
       console.error(error);
+    } finally {
+      if (selectedReportRequestRef.current === requestId) {
+        setIsSelectedReportLoading(false);
+      }
     }
   };
 
   const handleCloseSelectedReport = () => {
     selectedReportRequestRef.current += 1;
+    setIsSelectedReportLoading(false);
     setSelectedReport(null);
   };
 
@@ -2445,16 +2452,18 @@ function AdminDashboard() {
                 </div>
               ) : null}
 
-              <div className="report-modal__comments">
-                <div className="report-modal__comments-header">
-                  <h3>Barangay Admin Feedback</h3>
-                  <span>{selectedReport.comments?.length || 0} total</span>
-                </div>
+	              <div className="report-modal__comments">
+	                <div className="report-modal__comments-header">
+	                  <h3>Barangay Admin Feedback</h3>
+	                  <span>{isSelectedReportLoading ? "Loading..." : `${selectedReport.comments?.length || 0} total`}</span>
+	                </div>
 
-                <div className="report-modal__comment-list">
-                  {selectedReport.comments?.length ? (
-                    selectedReport.comments.map((comment) => {
-                      const commentAttachment = getCommentAttachment(comment);
+	                <div className="report-modal__comment-list">
+	                  {isSelectedReportLoading ? (
+	                    <p className="dashboard-empty-state">Loading comments...</p>
+	                  ) : selectedReport.comments?.length ? (
+	                    selectedReport.comments.map((comment) => {
+	                      const commentAttachment = getCommentAttachment(comment);
 
                       return (
                       <article
